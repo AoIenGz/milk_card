@@ -1,0 +1,77 @@
+:root {
+  --card-width: 220px;
+  --card-height: 310px;
+  --card-radius: 16px;
+
+  --carousel-perspective: 1200px;
+  --carousel-radius: 320px;
+
+  --color-bg: #0f0f1a;
+  --color-bg-light: #1a1a2e;
+  --color-card: #1e1e36;
+  --color-card-active: #2a2a50;
+  --color-accent: #e94560;
+  --color-accent-glow: rgba(233, 69, 96, 0.35);
+  --color-text: #e8e8f0;
+  --color-text-muted: #6b6b8d;
+  --color-done: #4ade80;
+  --color-border: rgba(255,255,255,0.06);
+
+  --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-main);
+  background: transparent;
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+#vanta-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* 按钮/交互基础样式 */
+button {
+  border: none;
+  background: none;
+  color: inherit;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+ul {
+  list-style: none;
+}

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <!-- 背景 -->
+  <rect width="192" height="192" fill="#0f0f1a"/>
+
+  <!-- 卡片填充 -->
+  <rect x="36" y="36" width="120" height="136" rx="14" fill="#141420"/>
+
+  <!-- 折角区域（用背景色覆盖右上角） -->
+  <polygon points="128,36 156,36 156,64" fill="#0f0f1a"/>
+
+  <!-- 折痕线 -->
+  <line x1="128" y1="36" x2="156" y2="64" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- 卡片轮廓 - 分段绘制（避开折角） -->
+  <!-- 左上角弧 -->
+  <path d="M50,36 A14,14 0 0,1 36,50" fill="none" stroke="#ffffff" stroke-width="5"/>
+  <!-- 顶边 -->
+  <line x1="50" y1="36" x2="128" y2="36" stroke="#ffffff" stroke-width="5"/>
+  <!-- 右边（折角以下） -->
+  <line x1="156" y1="64" x2="156" y2="158" stroke="#ffffff" stroke-width="5"/>
+  <!-- 右下角弧 -->
+  <path d="M156,158 A14,14 0 0,1 142,172" fill="none" stroke="#ffffff" stroke-width="5"/>
+  <!-- 底边 -->
+  <line x1="142" y1="172" x2="50" y2="172" stroke="#ffffff" stroke-width="5"/>
+  <!-- 左下角弧 -->
+  <path d="M50,172 A14,14 0 0,1 36,158" fill="none" stroke="#ffffff" stroke-width="5"/>
+  <!-- 左边 -->
+  <line x1="36" y1="158" x2="36" y2="50" stroke="#ffffff" stroke-width="5"/>
+
+  <!-- 待办线条1 - 已完成 -->
+  <line x1="58" y1="90" x2="134" y2="90" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.3"/>
+
+  <!-- 勾选标记 -->
+  <polyline points="59,90 65,96 77,84" fill="none" stroke="#e94560" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- 待办线条2 - 待办 -->
+  <line x1="58" y1="116" x2="134" y2="116" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.55"/>
+
+  <!-- 待办线条3 - 待办（较短） -->
+  <line x1="58" y1="142" x2="118" y2="142" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.3"/>
+</svg>

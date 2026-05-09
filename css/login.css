@@ -17,7 +17,6 @@
   border-radius: 20px;
   text-align: center;
   backdrop-filter: blur(16px);
-  opacity: 0;
   will-change: transform, opacity;
 }
 
@@ -26,14 +25,12 @@
   font-weight: 700;
   color: var(--color-accent);
   margin-bottom: 4px;
-  opacity: 0;
 }
 
 .login-subtitle {
   font-size: 13px;
   color: var(--color-text-muted);
   margin-bottom: 32px;
-  opacity: 0;
 }
 
 .login-form {
@@ -43,7 +40,6 @@
 }
 
 .login-form .login-stagger {
-  opacity: 0;
 }
 
 .login-form input {

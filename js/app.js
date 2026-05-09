@@ -103,11 +103,18 @@ async function handleRegister(username, password) {
 }
 
 // === 登录页动画 ===
+function getVisibleForm() {
+  const loginForm = document.getElementById('login-form');
+  const registerForm = document.getElementById('register-form');
+  if (registerForm.style.display !== 'none' && registerForm.offsetParent !== null) return registerForm;
+  return loginForm;
+}
+
 function animateLoginEntrance() {
   const card = document.querySelector('.login-card');
   const title = document.querySelector('.login-title');
   const subtitle = document.querySelector('.login-subtitle');
-  const visibleForm = document.querySelector('.login-form[style!="display:none"]') || document.getElementById('login-form');
+  const visibleForm = getVisibleForm();
   const staggers = visibleForm.querySelectorAll('.login-stagger');
 
   // 重置状态

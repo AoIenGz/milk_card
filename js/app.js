@@ -111,45 +111,54 @@ function getVisibleForm() {
 }
 
 function animateLoginEntrance() {
-  const card = document.querySelector('.login-card');
-  const title = document.querySelector('.login-title');
-  const subtitle = document.querySelector('.login-subtitle');
-  const visibleForm = getVisibleForm();
-  const staggers = visibleForm.querySelectorAll('.login-stagger');
+  try {
+    const card = document.querySelector('.login-card');
+    const title = document.querySelector('.login-title');
+    const subtitle = document.querySelector('.login-subtitle');
+    const visibleForm = getVisibleForm();
+    const staggers = visibleForm.querySelectorAll('.login-stagger');
 
-  // 重置状态
-  gsap.set(card, { opacity: 0, y: 30, scale: 0.95 });
-  gsap.set(title, { opacity: 0, y: 10 });
-  gsap.set(subtitle, { opacity: 0, y: 8 });
-  gsap.set(staggers, { opacity: 0, y: 14 });
-
-  const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
-  tl.to(card, { opacity: 1, y: 0, scale: 1, duration: 0.5 }, 0.1);
-  tl.to(title, { opacity: 1, y: 0, duration: 0.35 }, 0.3);
-  tl.to(subtitle, { opacity: 1, y: 0, duration: 0.3 }, 0.38);
-  tl.to(staggers, { opacity: 1, y: 0, duration: 0.3, stagger: 0.07 }, 0.45);
+    // 用 gsap.from：从指定状态动画到当前 CSS 状态（可见）
+    // 即使动画失败，元素也会是可见的
+    gsap.from(card, { opacity: 0, y: 30, scale: 0.95, duration: 0.5, ease: 'power2.out', delay: 0.1 });
+    gsap.from(title, { opacity: 0, y: 10, duration: 0.35, ease: 'power2.out', delay: 0.3 });
+    gsap.from(subtitle, { opacity: 0, y: 8, duration: 0.3, ease: 'power2.out', delay: 0.38 });
+    gsap.from(staggers, { opacity: 0, y: 14, duration: 0.3, stagger: 0.07, ease: 'power2.out', delay: 0.45 });
+  } catch (e) {
+    console.error('Login entrance animation failed:', e);
+  }
 }
 
 function animateLoginExit(onComplete) {
-  const card = document.querySelector('.login-card');
-  const tl = gsap.timeline({ onComplete });
-  tl.to(card, { scale: 1.05, opacity: 0.6, duration: 0.2, ease: 'power2.in' }, 0);
-  tl.to(card, { scale: 0.85, opacity: 0, filter: 'blur(6px)', y: -20, duration: 0.35, ease: 'power3.in' }, 0.2);
+  try {
+    const card = document.querySelector('.login-card');
+    gsap.to(card, {
+      scale: 0.85, opacity: 0, y: -20, duration: 0.4, ease: 'power3.in',
+      onComplete
+    });
+  } catch (e) {
+    console.error('Login exit animation failed:', e);
+    onComplete();
+  }
 }
 
 function animateFormSwitch(showForm, hideForm) {
-  const hideStaggers = hideForm.querySelectorAll('.login-stagger');
-  const showStaggers = showForm.querySelectorAll('.login-stagger');
+  try {
+    const hideStaggers = hideForm.querySelectorAll('.login-stagger');
+    const showStaggers = showForm.querySelectorAll('.login-stagger');
 
-  gsap.set(showStaggers, { opacity: 0, y: 14 });
-
-  const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
-  tl.to(hideStaggers, { opacity: 0, y: -10, duration: 0.2, stagger: 0.03 });
-  tl.call(() => {
+    const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+    tl.to(hideStaggers, { opacity: 0, y: -10, duration: 0.2, stagger: 0.03 });
+    tl.call(() => {
+      hideForm.style.display = 'none';
+      showForm.style.display = 'flex';
+    });
+    tl.from(showStaggers, { opacity: 0, y: 14, duration: 0.25, stagger: 0.06 }, '+=0.05');
+  } catch (e) {
+    console.error('Form switch animation failed:', e);
     hideForm.style.display = 'none';
     showForm.style.display = 'flex';
-  });
-  tl.to(showStaggers, { opacity: 1, y: 0, duration: 0.25, stagger: 0.06 }, '+=0.05');
+  }
 }
 
 // 按钮涟漪效果

@@ -4,3 +4,7 @@ __pycache__/
 .claude/
 server/node_modules/
 *.pem
+deploy.py
+deploy_frontend.py
+deploy.sh
+update_server.py

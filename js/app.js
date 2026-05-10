@@ -443,6 +443,208 @@ function renderPage(dayKey) {
   list.innerHTML = '';
   todos.forEach(todo => list.appendChild(createTodoItem(todo)));
   updatePageProgress();
+  renderPomoTaskList();
+}
+
+// === 番茄钟 ===
+const POMO = {
+  FOCUS: 25 * 60,
+  SHORT_BREAK: 5 * 60,
+  LONG_BREAK: 15 * 60,
+  ROUNDS: 4,
+};
+
+let pomoState = 'idle'; // idle | running | paused
+let pomoMode = 'focus'; // focus | short | long
+let pomoRound = 1;
+let pomoTimeLeft = POMO.FOCUS;
+let pomoTimer = null;
+let pomoSelectedTask = null;
+
+const POMO_CIRC = 2 * Math.PI * 90; // r=90
+
+function pomoTotalForMode(mode) {
+  if (mode === 'focus') return POMO.FOCUS;
+  if (mode === 'short') return POMO.SHORT_BREAK;
+  return POMO.LONG_BREAK;
+}
+
+function pomoModeLabel(mode) {
+  if (mode === 'focus') return '专注';
+  if (mode === 'short') return '短休息';
+  return '长休息';
+}
+
+function pomoModeLabelDone(mode) {
+  if (mode === 'focus') return '专注完成';
+  if (mode === 'short') return '休息结束';
+  return '长休息结束';
+}
+
+function updatePomoDisplay() {
+  const min = Math.floor(pomoTimeLeft / 60);
+  const sec = pomoTimeLeft % 60;
+  document.getElementById('pomo-minutes').textContent = String(min).padStart(2, '0');
+  document.getElementById('pomo-seconds').textContent = String(sec).padStart(2, '0');
+  document.getElementById('pomo-mode-label').textContent = pomoModeLabel(pomoMode);
+  document.getElementById('pomo-round').textContent = `${pomoRound} / ${POMO.ROUNDS}`;
+
+  // 环形进度
+  const total = pomoTotalForMode(pomoMode);
+  const progress = total > 0 ? pomoTimeLeft / total : 1;
+  const offset = POMO_CIRC * (1 - progress);
+  const fill = document.querySelector('.pomo-ring-fill');
+  if (fill) fill.style.strokeDashoffset = offset;
+
+  // 休息模式换色
+  const wrap = document.getElementById('pomo-timer-wrap');
+  if (wrap) {
+    wrap.classList.toggle('is-break', pomoMode !== 'focus');
+  }
+
+  // 开始/暂停按钮切换
+  document.getElementById('pomo-start').style.display = pomoState === 'running' ? 'none' : 'flex';
+  document.getElementById('pomo-pause').style.display = pomoState === 'running' ? 'flex' : 'none';
+
+  // 高亮关联的待办项
+  document.querySelectorAll('.todo-item').forEach(li => {
+    li.classList.toggle('is-pomo-active', pomoSelectedTask && li.dataset.id === pomoSelectedTask);
+  });
+}
+
+function pomoTick() {
+  if (pomoTimeLeft <= 0) {
+    clearInterval(pomoTimer);
+    pomoTimer = null;
+    pomoOnComplete();
+    return;
+  }
+  pomoTimeLeft--;
+  updatePomoDisplay();
+}
+
+function pomoStart() {
+  if (pomoState === 'running') return;
+  pomoState = 'running';
+  pomoTimer = setInterval(pomoTick, 1000);
+  updatePomoDisplay();
+}
+
+function pomoPause() {
+  if (pomoState !== 'running') return;
+  pomoState = 'paused';
+  clearInterval(pomoTimer);
+  pomoTimer = null;
+  updatePomoDisplay();
+}
+
+function pomoReset() {
+  clearInterval(pomoTimer);
+  pomoTimer = null;
+  pomoState = 'idle';
+  pomoMode = 'focus';
+  pomoRound = 1;
+  pomoTimeLeft = POMO.FOCUS;
+  pomoSelectedTask = null;
+  updatePomoDisplay();
+  renderPomoTaskList();
+}
+
+function pomoOnComplete() {
+  // 播放提示音
+  pomoPlaySound();
+
+  // 显示完成浮层
+  const overlay = document.getElementById('pomo-complete-overlay');
+  const text = document.getElementById('pomo-complete-text');
+  text.textContent = pomoModeLabelDone(pomoMode);
+  overlay.style.display = 'flex';
+
+  // 视觉闪烁
+  const panel = document.getElementById('pomodoro-panel');
+  panel.classList.add('pomo-flash');
+  setTimeout(() => panel.classList.remove('pomo-flash'), 1500);
+}
+
+function pomoNextPhase() {
+  // 关闭完成浮层
+  document.getElementById('pomo-complete-overlay').style.display = 'none';
+
+  if (pomoMode === 'focus') {
+    if (pomoRound >= POMO.ROUNDS) {
+      pomoMode = 'long';
+      pomoTimeLeft = POMO.LONG_BREAK;
+    } else {
+      pomoMode = 'short';
+      pomoTimeLeft = POMO.SHORT_BREAK;
+    }
+  } else {
+    // 休息结束，进入下一轮专注
+    if (pomoMode === 'long') {
+      pomoRound = 1;
+    } else {
+      pomoRound++;
+    }
+    pomoMode = 'focus';
+    pomoTimeLeft = POMO.FOCUS;
+  }
+
+  pomoState = 'idle';
+  updatePomoDisplay();
+  // 自动开始下一阶段
+  pomoStart();
+}
+
+function pomoPlaySound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const playTone = (freq, start, dur) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + start);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + start + dur);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + start);
+      osc.stop(ctx.currentTime + start + dur);
+    };
+    playTone(880, 0, 0.15);
+    playTone(880, 0.2, 0.15);
+    playTone(1100, 0.45, 0.25);
+  } catch (e) { /* 静默失败 */ }
+}
+
+function renderPomoTaskList() {
+  const list = document.getElementById('pomo-task-list');
+  if (!list) return;
+  const todos = (currentDayKey && weekData) ? (weekData.days[currentDayKey] || []) : [];
+  const undone = todos.filter(t => !t.done);
+  list.innerHTML = '';
+  if (undone.length === 0) {
+    list.innerHTML = '<li class="pomo-task-item" style="opacity:0.4;cursor:default">暂无未完成的任务</li>';
+    return;
+  }
+  undone.forEach(todo => {
+    const li = document.createElement('li');
+    li.className = 'pomo-task-item';
+    if (pomoSelectedTask === todo.id) li.classList.add('is-selected');
+    li.innerHTML = `<span class="pomo-task-dot"></span><span class="pomo-task-name">${todo.text || '未命名任务'}</span>`;
+    li.addEventListener('click', () => {
+      pomoSelectedTask = pomoSelectedTask === todo.id ? null : todo.id;
+      renderPomoTaskList();
+      updatePomoDisplay();
+    });
+    list.appendChild(li);
+  });
+}
+
+function initPomoEvents() {
+  document.getElementById('pomo-start').addEventListener('click', pomoStart);
+  document.getElementById('pomo-pause').addEventListener('click', pomoPause);
+  document.getElementById('pomo-reset').addEventListener('click', pomoReset);
+  document.getElementById('pomo-complete-btn').addEventListener('click', pomoNextPhase);
 }
 
 // === 转场动画 ===
@@ -500,6 +702,11 @@ function openPage() {
 
 function closePage() {
   const t = tryTransition('CLOSE'); if (!t) return;
+  // 清理番茄钟
+  clearInterval(pomoTimer);
+  pomoTimer = null;
+  pomoState = 'idle';
+  document.getElementById('pomo-complete-overlay').style.display = 'none';
   animatePageToCarousel(() => completeTransition(t));
 }
 
@@ -613,6 +820,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function startApp() {
   try {
     bindEvents();
+    initPomoEvents();
     await initCarousel(handleCardConfirm);
 
     const activeIdx = parseInt(document.querySelector('.card.is-active')?.dataset.index || '0');

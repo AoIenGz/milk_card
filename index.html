@@ -131,8 +131,53 @@
         <span id="page-progress"></span>
       </header>
       <div id="page-body">
-        <ul id="todo-list"></ul>
-        <button id="btn-add-todo">+ 添加任务</button>
+        <!-- 左侧：待办列表 -->
+        <div id="todo-panel">
+          <ul id="todo-list"></ul>
+          <button id="btn-add-todo">+ 添加任务</button>
+        </div>
+        <!-- 右侧：番茄钟 -->
+        <div id="pomodoro-panel">
+          <div id="pomo-header">
+            <span id="pomo-mode-label">专注</span>
+            <span id="pomo-round">1 / 4</span>
+          </div>
+          <div id="pomo-timer-wrap">
+            <svg id="pomo-ring" viewBox="0 0 200 200">
+              <circle class="pomo-ring-bg" cx="100" cy="100" r="90"/>
+              <circle class="pomo-ring-fill" cx="100" cy="100" r="90"
+                stroke-dasharray="565.49" stroke-dashoffset="0"/>
+            </svg>
+            <div id="pomo-timer-text">
+              <span id="pomo-minutes">25</span>
+              <span id="pomo-colon">:</span>
+              <span id="pomo-seconds">00</span>
+            </div>
+          </div>
+          <div id="pomo-controls">
+            <button id="pomo-start" aria-label="开始">
+              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20"/></svg>
+            </button>
+            <button id="pomo-pause" aria-label="暂停" style="display:none">
+              <svg viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/></svg>
+            </button>
+            <button id="pomo-reset" aria-label="重置">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            </button>
+          </div>
+          <div id="pomo-task-select">
+            <span class="pomo-task-label">关联任务</span>
+            <ul id="pomo-task-list"></ul>
+          </div>
+          <!-- 完成提示 -->
+          <div id="pomo-complete-overlay" style="display:none">
+            <div id="pomo-complete-content">
+              <div id="pomo-complete-icon">✓</div>
+              <div id="pomo-complete-text">专注完成</div>
+              <button id="pomo-complete-btn">继续</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
